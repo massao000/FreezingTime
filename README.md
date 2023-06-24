@@ -1,1 +1,3 @@
 # FreezingTime
+
+TikTokのタイムワイプをPythonで再現したものです
