@@ -3,6 +3,8 @@ import cv2
 import numpy as np
 from PIL import ImageTk, Image
 import datetime
+import os
+import imageio
 
 # カメラ表示
 def update_frame():
@@ -25,6 +27,9 @@ def toggle_camera():
 
 # カウントダウン
 def start_countdown():
+    # ボタンを無効化
+    countdown_button.config(state="disabled")
+    
     count_label.config(text="3")
     count_label.update()
     count_label.after(1000, update_count, 2)
@@ -51,6 +56,14 @@ def animate_lines():
     speed = speed_scale.get()  # スライドバーの値を取得
     result_image = np.zeros((int(height), int(width), 3), dtype=np.uint8)
     line_direction = get_line_direction()
+    dt_now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+    
+    # 動画出力用の設定
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    output_video = cv2.VideoWriter(f"output\movie\{dt_now}.mp4", fourcc, 20.0, (int(width), int(height)))
+
+    # GIF出力用のフレームリスト
+    frames_gif = []
     
     while x <= width:
         ret, frame = cap.read()
@@ -81,6 +94,13 @@ def animate_lines():
             video_label.update()
             x += speed
             
+            # 動画をフレームごとに書き込み
+            frame_video = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            output_video.write(frame_video)
+            
+            # GIF出力用にフレームを追加
+            frames_gif.append(frame)
+            
             if x % 1 == 0:                
                 if line_direction == "Vertical":
                     x1 = int(x) * crop_width
@@ -95,7 +115,14 @@ def animate_lines():
     
                 clipping = frame_copy[int(y1):int(y2), int(x1):int(x2)]
                 line_positions.append(clipping)
-            
+    
+    # 動画出力を終了
+    output_video.release()
+    
+    # GIFとして保存
+    if save_gif_var.get():
+        imageio.mimsave(f"output\gif\{dt_now}.gif", frames_gif, duration=20)
+    
     ret, frame = cap.read()
     if ret:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -112,13 +139,23 @@ def animate_lines():
     
     stop_frame = cv2.cvtColor(stop_frame, cv2.COLOR_BGR2RGB)
     
-    dt_now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-    cv2.imwrite(f"{dt_now}.png", stop_frame)
+    cv2.imwrite(f"output\img\{dt_now}.png", stop_frame)
+    
+    # ボタンを有効化
+    countdown_button.config(state="normal")
     
     toggle_camera()
 
 def get_line_direction():
     return line_var.get()
+
+def save_dir():
+    
+    save_dirs = ['output', 'output\gif', 'output\movie', 'output\img']
+    
+    for i in save_dirs:
+        if not os.path.isdir(i):
+            os.makedirs(i)
 
 # カメラのキャプチャを開始
 cap = cv2.VideoCapture(0)
@@ -153,14 +190,23 @@ vertical_radio.grid(row=4, column=0, padx=10, pady=5)
 horizontal_radio = tk.Radiobutton(window, text="Horizontal", variable=line_var, value="Horizontal")
 horizontal_radio.grid(row=5, column=0, padx=10, pady=5)
 
+# GIFボタンの作成
+save_gif_var = tk.BooleanVar()
+save_gif_checkbox = tk.Checkbutton(window, text="Save as GIF", variable=save_gif_var)
+save_gif_checkbox.grid(row=6, column=0, padx=10, pady=10)
+
 # カウントダウンを開始するボタンの作成
 countdown_button = tk.Button(window, text="Start Countdown", command=start_countdown)
-countdown_button.grid(row=6, column=0, padx=10, pady=10)
+countdown_button.grid(row=7, column=0, padx=10, pady=10)
+
 
 # ウィンドウのレイアウトを調整
 window.grid_rowconfigure(0, weight=1)
 window.grid_columnconfigure(0, weight=1)
 window.grid_columnconfigure(1, weight=1)
+
+# 保存ディレクトリを実行
+save_dir()
 
 # カメラ映像を更新する関数を呼び出す
 update_frame()
