@@ -1,14 +1,22 @@
 # FreezingTime
 
-TikTokのタイムワイプをPythonで再現したものです。
+This is a Python implementation of TikTok Time wipe effect.
 
 
-## demo
+## Demo
 
-<!-- 動画を入れる -->
+[demo video](https://youtu.be/lGAakpyL_wc)
+
 
 ---
 
-仮想環境の構築の仕方は以下のURLにまとめています。
+## Usage
+
+To run the application, execute the following command:
+```
+$ app.bat
+```
+
+If you are unable to launch the application, please access the following URL and manually set up the environment to run it:
 
 https://github.com/massao000/python-venv/tree/main
