@@ -163,7 +163,7 @@ is_camera_on = True
 
 # Tkinterウィンドウの作成
 window = tk.Tk()
-window.title("Camera Viewer")
+window.title("Freezing Time")
 
 
 # カメラ映像を表示するためのラベルを作成
@@ -194,10 +194,12 @@ horizontal_radio.grid(row=5, column=0, padx=10, pady=5)
 save_gif_var = tk.BooleanVar()
 save_gif_checkbox = tk.Checkbutton(window, text="Save as GIF", variable=save_gif_var)
 save_gif_checkbox.grid(row=6, column=0, padx=10, pady=10)
+save_gif_var = tk.Label(window, text="Saving GIF takes a long time")
+save_gif_var.grid(row=7, column=0, padx=10, pady=10)
 
 # カウントダウンを開始するボタンの作成
 countdown_button = tk.Button(window, text="Start Countdown", command=start_countdown)
-countdown_button.grid(row=7, column=0, padx=10, pady=10)
+countdown_button.grid(row=8, column=0, padx=10, pady=10)
 
 
 # ウィンドウのレイアウトを調整
